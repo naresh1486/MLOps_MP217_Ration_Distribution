@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mp217-svc
+  labels:
+    app: mp217-api
+spec:
+  type: ClusterIP
+  selector:
+    app: mp217-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+      protocol: TCP
