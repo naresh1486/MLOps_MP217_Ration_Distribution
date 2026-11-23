@@ -1,0 +1,62 @@
+# MP217 findings --- fill in every value, keep every key.
+# The marking tool reads this file. Write null only where the comment says so.
+# Use the exact column names and group values from your data files.
+
+group_id: "G230"          # your group id, e.g. "G042"
+problem_id: "MP217"
+
+data_issues:
+  # For each of the 7 kinds: present: true or false.
+  # If present is false, leave the other values as null.
+  leaking_column:
+    present: false
+    column: null           # the column that must not be used as a feature
+  unit_mixup:
+    present: true
+    column: "stock_kg_morning"           # the column recorded in a different unit
+    group_value: "Block East"      # the value of block whose rows are affected
+    factor: 1000           # wrong value = right value x factor
+  sentinel_value:
+    present: false
+    column: null
+    value: null            # the special number typed instead of a blank
+    count: null            # how many rows have it
+  duplicate_rows:
+    present: true
+    count: 27            # number of EXTRA copies (rows you would delete)
+  stuck_sensor:
+    present: false
+    column: null
+    start_date: null       # first date with the stuck value, YYYY-MM-DD
+    end_date: null         # last date with the stuck value, YYYY-MM-DD
+  target_typos:
+    present: true
+    count: 9            # rows whose target was typed 10 times too big
+  spelling_variants:
+    present: true
+    column: "shop_area"
+    true_levels: 3      # how many real categories there are after cleaning
+
+tracking:
+  experiment_name: "mp217_ration_distribution"
+  best_run_id: "643bb16b79d944ee87f073d813c43a17"        # the MLflow run id of your v1 model
+  registered_model_name: "mp217_ration_model"
+  champion_version: 1
+
+monitoring:
+  psi:                     # cleaned train.csv vs later.csv, 10 bins
+    cards_attached: null
+    working_hours: null
+    biometric_failures: null
+    temp_c: null
+    stock_kg_morning: null
+    days_to_month_end: null
+  most_drifted_feature: null
+  mae_by_group:            # v1 on later.csv, per value of block
+    'Block North': null
+    'Block South': null
+    'Block East': null
+  worst_served_group: null
+  mae_v1_on_check: null    # v1 on the last 30% of later.csv (by date)
+  mae_v2_on_check: null    # v2 on the same rows
+  decision: null           # promote or keep

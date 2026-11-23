@@ -1,0 +1,39 @@
+# Project Configuration for MP217 — Ration Shop Distribution (Kochi)
+
+paths:
+  train_data: "data/raw/train.csv"
+  later_data: "data/raw/later.csv"
+  holdout_data: "data/raw/holdout_features.csv"
+  clean_train_data: "data/processed/train_clean.csv"
+  clean_later_data: "data/processed/later_clean.csv"
+  model_path: "models/model.joblib"
+  holdout_predictions: "predictions/holdout_predictions.csv"
+
+target_column: "grain_kg"
+
+features:
+  numerical:
+    - cards_attached
+    - working_hours
+    - biometric_failures
+    - temp_c
+    - stock_kg_morning
+    - days_to_month_end
+  categorical:
+    - shop_area
+    - block
+
+split:
+  random_seed: 42
+  test_size: 0.2
+
+model:
+  algorithm: "RandomForestRegressor"
+  n_estimators: 100
+  max_depth: 10
+  random_state: 42
+
+mlflow:
+  tracking_uri: "sqlite:///mlflow.db"
+  experiment_name: "mp217_ration_distribution"
+  registered_model_name: "mp217_ration_model"

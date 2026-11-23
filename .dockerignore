@@ -1,0 +1,18 @@
+# Docker ignore file for MP217 (Group G230)
+.git/
+.github/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+.dvc/
+.dvcignore
+data/
+reports/
+predictions/
+tests/
+scratch/
+.DS_Store

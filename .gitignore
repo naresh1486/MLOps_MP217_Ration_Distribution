@@ -1,0 +1,29 @@
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Python bytecode & caching
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# DVC cache and temporary files (never commit cache)
+.dvc/cache/
+.dvc/tmp/
+
+# MLflow local run artifacts (mlflow.db SQLite file is committed, but mlruns is ignored)
+mlruns/
+mlartifacts/
+
+# Raw and processed CSV datasets (tracked via DVC, never commit raw data to Git)
+data/raw/*.csv
+data/processed/*.csv
+G230_MP217/data/*.csv
+*.csv
+!predictions/*.csv
