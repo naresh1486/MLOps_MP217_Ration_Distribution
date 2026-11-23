@@ -53,9 +53,9 @@ def load_champion_model(
     client = MlflowClient(tracking_uri=tracking_uri)
     alias_info = client.get_model_version_by_alias(registered_model_name, alias)
 
-    if str(alias_info.version) != "1":
+    if str(alias_info.version) not in ["1", "2"]:
         raise ValueError(
-            f"Expected alias '{alias}' to resolve to version 1, but got version {alias_info.version}"
+            f"Expected alias '{alias}' to resolve to version 1 or 2, but got version {alias_info.version}"
         )
 
     pipeline = joblib.load(path)
