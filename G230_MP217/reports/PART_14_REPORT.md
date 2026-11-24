@@ -37,15 +37,16 @@ $$PSI = \sum_{i=1}^{k} (A_i - E_i) \times \ln\left(\frac{A_i}{E_i}\right)$$
 |---|---|---|---|---|---|---|
 | `cards_attached` | Feature | 1,087.04 | 1,090.33 | +3.29 | **0.0512** | Stable ($< 0.10$) |
 | `working_hours` | Feature | 6.34 | 6.58 | +0.24 | **0.0266** | Stable ($< 0.10$) |
-| `biometric_failures` | Feature | 39.98 | 76.48 | +36.50 | **3.7164** | **Severe Drift ($\gg 0.25$)** |
+| `biometric_failures` | Feature | 39.98 | 76.48 | +36.50 | **3.7164** | **Severe Covariate Shift ($\gg 0.25$)** |
 | `temp_c` | Feature | 25.59 | 25.47 | -0.12 | **0.0462** | Stable ($< 0.10$) |
 | `stock_kg_morning` | Feature | 1,539.96 | 1,674.26 | +134.30 | **0.0643** | Stable ($< 0.10$) |
 | `days_to_month_end` | Feature | 15.40 | 14.96 | -0.44 | **0.0428** | Stable ($< 0.10$) |
-| `grain_kg` (Target) | Target | 1,141.01 | 826.96 | -314.05 | **0.8939** | Severe Concept Drift |
+| `grain_kg` (Target) | Target | 1,141.01 | 826.96 | -314.05 | **0.8939** | **Severe Target Distribution Shift ($\gg 0.25$)** |
 
 ### C. Primary Drift Finding
 - **Most Drifted Feature:** `biometric_failures` (**PSI = 3.7164**)
-- **Root Cause & Domain Context:** Average daily fingerprint biometric authentication failures almost doubled from 39.98 to 76.48 per shop. Because cardholders cannot withdraw their grain allocations when biometric terminals fail (strong negative correlation: $r = -0.84$), daily shop distribution dropped dramatically from an average of 1,141 kg to 827 kg. This massive operational covariate shift caused v1's performance to degrade significantly.
+- **Target Distribution Shift:** `grain_kg` exhibited a PSI of **0.8939**, reflecting a major shift in the target distribution.
+- **Operational Correlation & Context:** Average daily fingerprint biometric authentication failures almost doubled from 39.98 to 76.48 per shop. Elevated biometric authentication failures exhibited a strong empirical negative correlation/association with daily shop distribution ($r = -0.84$), with observed daily distribution dropping from an average of 1,141 kg to 827 kg. This substantial operational distribution shift led to severe degradation in v1's forecasts.
 
 ---
 
@@ -68,12 +69,15 @@ Evaluating the registered champion model (v1) across geographic administrative b
 ## 4. Chronological 70/30 Retraining Split
 
 In accordance with `PROBLEM.md` Section 7.3:
-1. `data/processed/later_clean.csv` was sorted ascending by `date`.
-2. **First 70% (Retraining Slice):**
+1. `data/processed/later_clean.csv` (300 rows) was sorted ascending by `date`.
+2. **Row-Based Chronological Partitioning:**
+   - The dataset was split by row index at 70% (210 rows) and 30% (90 rows).
+   - Because multiple shop records exist on `2026-08-10`, the split boundary occurs within that day: records from August 10 appear in both the training slice and the check slice.
+3. **First 70% (Retraining Slice):**
    - **Row Count:** 210 records
    - **Date Range:** `2026-07-01` to `2026-08-10`
    - Combined with `data/processed/train_clean.csv` (1,000 records) to form a new 1,210-record training corpus.
-3. **Remaining 30% (Check / Comparison Slice):**
+4. **Remaining 30% (Check / Comparison Slice):**
    - **Row Count:** 90 records
    - **Date Range:** `2026-08-10` to `2026-08-31`
    - Strictly reserved for evaluation; never exposed during model training.
@@ -164,7 +168,7 @@ tracking:
   experiment_name: mp217_ration_distribution
   best_run_id: 643bb16b79d944ee87f073d813c43a17
   registered_model_name: mp217_ration_model
-  champion_version: 1
+  champion_version: 2
 monitoring:
   psi:
     cards_attached: 0.0512

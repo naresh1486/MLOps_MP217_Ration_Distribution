@@ -69,11 +69,16 @@ In the context of the Kochi Food and Civil Supplies Office, ration shops distrib
 
 ## 6. Residual Analysis ($e = y - \hat{y}$)
 
+Residuals are defined as actual minus predicted ($e = y - \hat{y}$):
+* A **negative residual** ($e < 0$) indicates **overprediction / overestimation** ($\hat{y} > y$).
+* A **positive residual** ($e > 0$) indicates **underprediction / underestimation** ($\hat{y} < y$).
+
+Summary of validation residuals:
 * **Mean Residual:** **$-10.2992\text{ kg}$**
   * *Interpretation:* A slightly negative mean residual indicates a very modest tendency to overestimate daily demand by $\approx 10.3\text{ kg}$ on average. In a food relief and ration context, slight conservative overestimation is operationally desirable over underestimation, as it prevents families from arriving at empty ration counters.
 * **Standard Deviation of Residuals:** **$76.7930\text{ kg}$**
-* **Minimum Error (Underestimation):** $-227.70\text{ kg}$
-* **Maximum Error (Overestimation):** $+214.50\text{ kg}$
+* **Minimum Residual (Largest Overprediction):** **$-227.70\text{ kg}$** (actual distribution was $227.70\text{ kg}$ lower than predicted).
+* **Maximum Residual (Largest Underprediction):** **$+214.50\text{ kg}$** (actual distribution was $214.50\text{ kg}$ higher than predicted).
 * **Maximum Absolute Error:** **$227.7041\text{ kg}$**
 * **Symmetry & Homoscedasticity:**
   * The residual distribution is symmetric and approximately normal around zero.
@@ -154,8 +159,8 @@ Cryptographic SHA-256 hashes of all raw datasets were re-verified:
    * The training distribution (`train_clean.csv`) only contains `biometric_failures` between 0 and 80.
    * As discovered during EDA, production monitoring data (`later.csv`) features a surge in biometric failures up to 118.
    * Model v1 has never seen operational conditions with $\ge 80$ biometric failures, which may cause performance degradation during production deployment. This reinforces the need for drift monitoring and retraining in Stage 4.
-2. **Extreme Peak Error:**
-   * Maximum absolute error on the validation set is $227.70\text{ kg}$, occurring on an unusually high-volume urban shop on the penultimate day of the month. Buffer stock of $\approx 250\text{ kg}$ is recommended for urban shops.
+2. **Peak Validation Residual Observation:**
+   * Maximum absolute error on the validation set is $227.70\text{ kg}$, occurring on an unusually high-volume urban shop on the penultimate day of the month. Maintaining a precautionary buffer stock of $\approx 250\text{ kg}$ is noted as a preliminary operational observation from empirical error bounds, not an established or validated supply chain policy.
 
 ---
 

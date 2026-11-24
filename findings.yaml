@@ -33,7 +33,7 @@ tracking:
   experiment_name: mp217_ration_distribution
   best_run_id: 643bb16b79d944ee87f073d813c43a17
   registered_model_name: mp217_ration_model
-  champion_version: 1
+  champion_version: 2
 monitoring:
   psi:
     cards_attached: 0.0512

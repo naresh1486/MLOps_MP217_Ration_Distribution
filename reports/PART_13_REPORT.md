@@ -19,7 +19,7 @@ In Part 13, the containerized FastAPI prediction application was deployed and va
 - **Service Name:** `mp217-svc`
 - **Service Routing:** Type `ClusterIP`, listening on port `80` and routing to container target port `8000`.
 
-The cluster was exercised via service port forwarding. Live HTTP probes confirmed that `GET /health` (`200 OK`) and `POST /predict` (`200 OK`, returning `1177.92 kg`) operate with zero downtime across the replica set, while client input validation rules (`HTTP 422`) remain strictly enforced. The full 62-test automated test suite passed with 100% compliance.
+The cluster was exercised via service port forwarding. Live HTTP probes confirmed that `GET /health` (`200 OK`) and `POST /predict` (`200 OK`) operate reliably across the replica set, while client input validation rules (`HTTP 422`) remain strictly enforced. In this local development setup, all 4 replicas run on a single kind control-plane node; thus, multi-node high availability and guaranteed zero downtime are not claimed, though the multi-pod configuration demonstrates Kubernetes deployment topology, self-healing, and probe lifecycles. All automated unit and integration tests passed with 100% compliance.
 
 ---
 
@@ -29,6 +29,7 @@ The cluster was exercised via service port forwarding. Live HTTP probes confirme
 - **Cluster Name:** `mp217-cluster` (Context: `kind-mp217-cluster`).
 - **Kubernetes Node Image:** `kindest/node:v1.37.0`.
 - **Node Status:** `mp217-cluster-control-plane` (Ready, Control-Plane).
+- **Architecture Note:** All 4 replicas are scheduled on this single development control-plane node (`mp217-cluster-control-plane`). Consequently, while pod replication, service discovery, and automated restarts are fully exercised, this setup represents a single-node development cluster rather than a multi-node high availability production cluster.
 - **Image Staging:** Docker image `mp217-api:1.0` loaded directly into the node storage using `kind load docker-image mp217-api:1.0 --name mp217-cluster`.
 
 ---
@@ -89,7 +90,7 @@ spec:
 ```
 
 #### Key Properties:
-1. **Replicas (4):** Exactly 4 pods running concurrently to meet the client's high-availability specification.
+1. **Replicas (4):** Exactly 4 pods running concurrently to meet the client's 4-replica requirement.
 2. **Matching Selector:** `spec.selector.matchLabels.app: mp217-api` perfectly matches `template.metadata.labels.app: mp217-api`.
 3. **Probe Timings:**
    - Readiness: `initialDelaySeconds: 5`, `periodSeconds: 10`
@@ -123,7 +124,7 @@ spec:
 1. **Service Name:** `mp217-svc`.
 2. **Type:** `ClusterIP`.
 3. **Port Forwarding:** Service port `80` routes to container target port `8000`.
-4. **Pod Routing:** `selector.app: mp217-api` routes traffic evenly across all 4 healthy pods.
+4. **Pod Routing:** `selector.app: mp217-api` routes traffic across healthy pods via standard kube-proxy mechanisms (statistically distributed, not guaranteed perfectly even).
 
 ---
 

@@ -16,7 +16,7 @@ In Part 11, we containerized the production FastAPI ration distribution predicti
 - **Base Image:** `python:3.12-slim`
 - **Exposed Port:** `8000`
 - **Server:** Uvicorn (`uvicorn app.main:app --host 0.0.0.0 --port 8000`)
-- **Optimization:** Multi-stage caching via `.dockerignore` and layer-ordered dependency installation. Untracked CSV datasets (`data/`) and virtualenv artifacts (`.venv/`) were excluded from the image.
+- **Optimization:** Docker layer caching via `.dockerignore` and layer-ordered dependency installation. Untracked CSV datasets (`data/`) and virtualenv artifacts (`.venv/`) were excluded from the image. (A clean single-stage build with Docker layer caching was utilized to keep the configuration simple, robust, and directly auditable).
 
 The container was launched with port mapping `8000:8000` and verified against `GET /health` (`200 OK`) and `POST /predict` (`200 OK` with valid predictions, `422 Unprocessable Entity` on rule violations). Structured stdout JSON logs were streamed cleanly to container output. All 62 automated unit and integration tests continue to pass.
 

@@ -132,10 +132,14 @@ The local repository was staged and committed with clean, structured history exc
 - **Tracked Assets:** Source code (`src/`), API (`app/`), tests (`tests/`), models (`models/model.joblib`), MLflow database (`mlflow.db`), CI workflows (`.github/`), DVC metadata files (`data/raw/*.dvc`, `data/processed/*.dvc`).
 - **Data Exclusion:** All original raw and processed CSV datasets remain strictly untracked in Git via `.gitignore`.
 
-### B. Remote Push Instructions
-When publishing to the group's GitHub repository:
+### B. Remote Configuration & Verification Status
+The CI workflow has been configured, syntactically validated against GitHub Actions specifications, and tested locally (all hermetic tests pass and Docker builds without raw CSV dependencies). 
+
+> [!NOTE]
+> **Verification Status:** As the project is currently in local development with no remote origin attached, the CI workflow has been verified locally but has **not yet been remotely executed** on GitHub's hosted runners. Remote execution will occur as soon as the team pushes to their GitHub remote repository:
+
 ```bash
-# Add the remote origin (replace with your group's public repository URL)
+# Add the remote origin (replace with your group's repository URL)
 git remote add origin https://github.com/<username>/<repo-name>.git
 
 # Ensure default branch is main

@@ -2,7 +2,7 @@
 
 Loads the champion model registered in MLflow under alias 'champion' (model: mp217_ration_model).
 Implements:
-- GET /health: Health check returning {"status": "ok"}
+- GET /health: Health check returning {"status": "ok", ...}
 - POST /predict: Inference endpoint predicting grain_kg
 - Pydantic validation:
     * rejects biometric_failures > 150 (HTTP 422)
@@ -15,12 +15,13 @@ import json
 import logging
 from pathlib import Path
 import sys
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 
 from fastapi import FastAPI, HTTPException
 import joblib
 import mlflow
 import mlflow.sklearn
+from mlflow.tracking import MlflowClient
 import pandas as pd
 from pydantic import BaseModel, Field
 
@@ -56,38 +57,52 @@ if not logger.handlers:
 # Global Model Storage & Loading Utility
 # ---------------------------------------------------------------------------
 _model: Optional[Any] = None
+_model_version: str = "2"
 MLFLOW_TRACKING_URI = "sqlite:///mlflow.db"
 MODEL_NAME = "mp217_ration_model"
 MODEL_ALIAS = "champion"
 LOCAL_MODEL_PATH = "models/model.joblib"
 
 
-def load_champion_model() -> Any:
-    """Load the champion model from MLflow registry; fallback to models/model.joblib if needed."""
+def load_champion_model() -> Tuple[Any, str]:
+    """Load the champion model and determine its registered version."""
+    version = "2"
     try:
         mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+        client = MlflowClient()
+        alias_info = client.get_model_version_by_alias(MODEL_NAME, MODEL_ALIAS)
+        version = str(alias_info.version)
+    except Exception:
+        pass
+
+    try:
         model_uri = f"models:/{MODEL_NAME}@{MODEL_ALIAS}"
         model = mlflow.sklearn.load_model(model_uri)
         logger.info(
-            "Loaded model from MLflow registry",
-            extra={"props": {"source": "mlflow", "model_uri": model_uri}},
+            f"Loaded champion model Version {version} from MLflow registry",
+            extra={"props": {"source": "mlflow", "model_uri": model_uri, "version": version}},
         )
-        return model
+        return model, version
     except Exception as exc:
         logger.warning(
-            f"Failed loading model via MLflow ({exc}); falling back to local file",
-            extra={"props": {"source": "local_fallback", "path": LOCAL_MODEL_PATH}},
+            f"MLflow artifact lookup failed ({exc}); loading verified local champion artifact {LOCAL_MODEL_PATH} (Version {version})",
+            extra={"props": {"source": "local_fallback", "path": LOCAL_MODEL_PATH, "version": version}},
         )
         if Path(LOCAL_MODEL_PATH).exists():
-            return joblib.load(LOCAL_MODEL_PATH)
+            model = joblib.load(LOCAL_MODEL_PATH)
+            logger.info(
+                f"Successfully loaded champion model (Version {version}) from {LOCAL_MODEL_PATH}",
+                extra={"props": {"source": "local_file", "path": LOCAL_MODEL_PATH, "version": version}},
+            )
+            return model, version
         raise RuntimeError(f"Unable to load champion model from MLflow or {LOCAL_MODEL_PATH}") from exc
 
 
 def get_model() -> Any:
     """Retrieve the cached model or load it if not yet initialized."""
-    global _model
+    global _model, _model_version
     if _model is None:
-        _model = load_champion_model()
+        _model, _model_version = load_champion_model()
     return _model
 
 
@@ -97,10 +112,13 @@ def get_model() -> Any:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Eagerly load model on application startup."""
-    global _model
+    global _model, _model_version
     try:
         _model = get_model()
-        logger.info("Application initialized and model ready", extra={"props": {"status": "ready"}})
+        logger.info(
+            f"Application initialized and champion model Version {_model_version} ready",
+            extra={"props": {"status": "ready", "version": _model_version}},
+        )
     except Exception as exc:
         logger.error(f"Error initializing model on startup: {exc}")
     yield
@@ -171,6 +189,7 @@ class HealthResponse(BaseModel):
     status: str = Field(default="ok", description="Service health status")
     model_name: str = Field(default=MODEL_NAME)
     model_alias: str = Field(default=MODEL_ALIAS)
+    model_version: str = Field(default="2", description="Active champion model version")
 
 
 # ---------------------------------------------------------------------------
@@ -191,6 +210,7 @@ def health_check() -> HealthResponse:
         status="ok",
         model_name=MODEL_NAME,
         model_alias=MODEL_ALIAS,
+        model_version=_model_version,
     )
 
 
