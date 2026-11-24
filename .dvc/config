@@ -1,4 +1,6 @@
 [core]
-    remote = local_storage
+    remote = dagshub
 ['remote "local_storage"']
     url = /tmp/dvc_storage
+['remote "dagshub"']
+    url = https://dagshub.com/naresh1486/MLOps_MP217_Ration_Distribution.dvc
