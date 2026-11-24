@@ -25,6 +25,20 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install dvc dvc-http certifi
+
+      - name: Configure SSL Certificates
+        run: |
+          python -c "import certifi; print('SSL_CERT_FILE=' + certifi.where())" >> "$GITHUB_ENV"
+
+      - name: Pull DVC Data
+        env:
+          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+        run: |
+          dvc remote modify dagshub --local auth basic
+          dvc remote modify dagshub --local user naresh1486
+          dvc remote modify dagshub --local password "$DAGSHUB_TOKEN"
+          dvc pull -r dagshub
 
       - name: Run Test Suite
         env:
