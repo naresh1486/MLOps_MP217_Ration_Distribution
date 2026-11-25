@@ -35,8 +35,9 @@ jobs:
         env:
           DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
-          dvc remote modify dagshub_s3 --local access_key_id "$DAGSHUB_TOKEN"
-          dvc remote modify dagshub_s3 --local secret_access_key "$DAGSHUB_TOKEN"
+          DAGSHUB_TOKEN_CLEAN="$(printf '%s' "$DAGSHUB_TOKEN" | tr -d '\r\n')"
+          dvc remote modify dagshub_s3 --local access_key_id "$DAGSHUB_TOKEN_CLEAN"
+          dvc remote modify dagshub_s3 --local secret_access_key "$DAGSHUB_TOKEN_CLEAN"
           dvc pull -r dagshub_s3
 
       - name: Run Test Suite
