@@ -4,3 +4,6 @@
     url = /tmp/dvc_storage
 ['remote "dagshub"']
     url = https://dagshub.com/naresh1486/MLOps_MP217_Ration_Distribution.dvc
+['remote "dagshub_s3"']
+    url = s3://dvc
+    endpointurl = https://dagshub.com/naresh1486/MLOps_MP217_Ration_Distribution.s3
