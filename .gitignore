@@ -17,8 +17,25 @@ Thumbs.db
 .dvc/cache/
 .dvc/tmp/
 
-# MLflow local run artifacts (mlflow.db SQLite file is committed, but mlruns is ignored)
-mlruns/
+# Backup files
+*.bak
+
+# MLflow local run artifacts (mlflow.db SQLite file is committed, but unrelated mlruns is ignored)
+mlruns/*
+!mlruns/1/
+mlruns/1/*
+!mlruns/1/4b1c605c1a3f4780ab6e1c77b006fbb2/
+mlruns/1/4b1c605c1a3f4780ab6e1c77b006fbb2/*
+!mlruns/1/4b1c605c1a3f4780ab6e1c77b006fbb2/artifacts/
+mlruns/1/4b1c605c1a3f4780ab6e1c77b006fbb2/artifacts/*
+!mlruns/1/4b1c605c1a3f4780ab6e1c77b006fbb2/artifacts/model/
+
+!mlruns/1/643bb16b79d944ee87f073d813c43a17/
+mlruns/1/643bb16b79d944ee87f073d813c43a17/*
+!mlruns/1/643bb16b79d944ee87f073d813c43a17/artifacts/
+mlruns/1/643bb16b79d944ee87f073d813c43a17/artifacts/*
+!mlruns/1/643bb16b79d944ee87f073d813c43a17/artifacts/model/
+
 mlartifacts/
 
 # Raw and processed CSV datasets (tracked via DVC, never commit raw data to Git)
